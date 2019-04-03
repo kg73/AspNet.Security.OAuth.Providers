@@ -1,4 +1,4 @@
-name: $(Rev:.rrr)
+name: $(Rev:rrr)
 
 # define two variables 'dockerId' and 'dockerPassword' in the build pipeline in UI for your ACR credentials
 trigger:
