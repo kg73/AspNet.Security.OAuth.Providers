@@ -12,8 +12,8 @@ jobs:
       set -e
       set -x
       dotnet restore $(projectPath)
-      dotnet build $(projectPath)
-      dotnet pack $(projectPath) -o $(Build.ArtifactStagingDirectory)/nuget
+      dotnet build $(projectPath) --configuration $(BuildConfiguration)
+      dotnet pack $(projectPath) --configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)
   - task: PublishBuildArtifacts@1
     inputs:
       artifactName: ${{ parameters.projectName }}
