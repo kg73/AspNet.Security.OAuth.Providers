@@ -1,0 +1,22 @@
+name: $(Rev:.rrr)
+
+# define two variables 'dockerId' and 'dockerPassword' in the build pipeline in UI for your ACR credentials
+trigger:
+  branches:
+    include:
+    - dev
+
+variables:
+- name: BuildConfiguration
+  value: Release
+
+jobs:
+- template: azure-pipelines.template.yml
+  parameters:
+    projectName: 'AspNet.Security.OAuth.Discord'
+- template: azure-pipelines.template.yml
+  parameters:
+    projectName: 'AspNet.Security.OAuth.Spotify'
+- template: azure-pipelines.template.yml
+  parameters:
+    projectName: 'AspNet.Security.OAuth.Twitch'

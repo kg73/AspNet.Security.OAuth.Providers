@@ -1,0 +1,20 @@
+parameters:
+  projectName: '' # Overridden in each pipeline file
+
+jobs:
+- job: Build_${{ parameters.projectName }}
+  pool:
+    vmImage: 'Ubuntu 16.04'
+  variables:
+    projectPath: 'src/${{ parameters.projectName }}/${{ parameters.projectName }}.csproj'
+  steps:
+  - script: |
+      set -e
+      set -x
+      dotnet restore $(projectPath)
+      dotnet build $(projectPath)
+      dotnet pack $(projectPath) -o $(Build.ArtifactStagingDirectory)/nuget
+  - task: PublishBuildArtifacts@1
+    inputs:
+      artifactName: ${{ parameters.projectName }}
+      pathtoPublish: $(Build.ArtifactStagingDirectory)
