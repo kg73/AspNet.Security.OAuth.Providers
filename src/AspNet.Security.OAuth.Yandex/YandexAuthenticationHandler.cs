@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace AspNet.Security.OAuth.Yandex
 {
@@ -51,7 +51,8 @@ namespace AspNet.Security.OAuth.Yandex
                 throw new HttpRequestException("An error occurred while retrieving the user profile.");
             }
 
-            var payload = JObject.Parse(await response.Content.ReadAsStringAsync());
+            var payloadDoc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var payload = payloadDoc.RootElement;
 
             var principal = new ClaimsPrincipal(identity);
             var context = new OAuthCreatingTicketContext(principal, properties, Context, Scheme, Options, Backchannel, tokens, payload);
@@ -88,9 +89,9 @@ namespace AspNet.Security.OAuth.Yandex
                 return OAuthTokenResponse.Failed(new Exception("An error occurred while retrieving an access token."));
             }
 
-            var payload = JObject.Parse(await response.Content.ReadAsStringAsync());
+            var payloadDoc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
 
-            return OAuthTokenResponse.Success(payload);
+            return OAuthTokenResponse.Success(payloadDoc);
         }
     }
 }

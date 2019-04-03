@@ -20,7 +20,7 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace AspNet.Security.OAuth.Instagram
 {
@@ -64,7 +64,7 @@ namespace AspNet.Security.OAuth.Instagram
                 throw new HttpRequestException("An error occurred while retrieving the user profile.");
             }
 
-            var payload = JObject.Parse(await response.Content.ReadAsStringAsync()).Value<JObject>("data");
+            var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync()).RootElement.GetProperty("data");
 
             var principal = new ClaimsPrincipal(identity);
             var context = new OAuthCreatingTicketContext(principal, properties, Context, Scheme, Options, Backchannel, tokens, payload);

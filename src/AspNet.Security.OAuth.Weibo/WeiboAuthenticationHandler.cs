@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace AspNet.Security.OAuth.Weibo
 {
@@ -38,7 +38,7 @@ namespace AspNet.Security.OAuth.Weibo
             var address = QueryHelpers.AddQueryString(Options.UserInformationEndpoint, new Dictionary<string, string>
             {
                 ["access_token"] = tokens.AccessToken,
-                ["uid"] = tokens.Response.Value<string>("uid")
+                ["uid"] = tokens.Response.RootElement.GetString("uid")
             });
 
             var request = new HttpRequestMessage(HttpMethod.Get, address);
@@ -56,7 +56,8 @@ namespace AspNet.Security.OAuth.Weibo
                 throw new HttpRequestException("An error occurred while retrieving the user profile.");
             }
 
-            var payload = JObject.Parse(await response.Content.ReadAsStringAsync());
+            var payloadDoc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var payload = payloadDoc.RootElement;
 
             // When the email address is not public, retrieve it from
             // the emails endpoint if the user:email scope is specified.
@@ -104,10 +105,10 @@ namespace AspNet.Security.OAuth.Weibo
                 return null;
             }
 
-            var payload = JArray.Parse(await response.Content.ReadAsStringAsync());
+            var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
 
-            return (from email in payload.AsJEnumerable()
-                    select email.Value<string>("email")).FirstOrDefault();
+            return (from email in payload.RootElement.EnumerateArray()
+                    select email.GetString("email")).FirstOrDefault();
         }
     }
 }

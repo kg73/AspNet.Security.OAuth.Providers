@@ -8,8 +8,9 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 using static AspNet.Security.OAuth.Weixin.WeixinAuthenticationConstants;
+using System.Linq;
 
 namespace AspNet.Security.OAuth.Weixin
 {
@@ -40,8 +41,8 @@ namespace AspNet.Security.OAuth.Weixin
             ClaimActions.MapJsonKey(Claims.HeadImgUrl, "headimgurl");
             ClaimActions.MapCustomJson(Claims.Privilege, user =>
             {
-                var value = user.Value<JArray>("privilege");
-                if (value == null)
+                var value = user.GetProperty("privilege").EnumerateArray();
+                if (!value.Any())
                 {
                     return null;
                 }

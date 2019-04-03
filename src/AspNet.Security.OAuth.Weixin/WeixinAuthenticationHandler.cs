@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace AspNet.Security.OAuth.Weixin
 {
@@ -36,7 +36,7 @@ namespace AspNet.Security.OAuth.Weixin
             var address = QueryHelpers.AddQueryString(Options.UserInformationEndpoint, new Dictionary<string, string>
             {
                 ["access_token"] = tokens.AccessToken,
-                ["openid"] = tokens.Response.Value<string>("openid")
+                ["openid"] = tokens.Response.RootElement.GetString("openid")
             });
 
             var response = await Backchannel.GetAsync(address);
@@ -51,8 +51,9 @@ namespace AspNet.Security.OAuth.Weixin
                 throw new HttpRequestException("An error occurred while retrieving user information.");
             }
 
-            var payload = JObject.Parse(await response.Content.ReadAsStringAsync());
-            if (!string.IsNullOrEmpty(payload.Value<string>("errcode")))
+            var payloadDoc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var payload = payloadDoc.RootElement;
+            if (!string.IsNullOrEmpty(payload.GetString("errcode")))
             {
                 Logger.LogError("An error occurred while retrieving the user profile: the remote server " +
                                 "returned a {Status} response with the following payload: {Headers} {Body}.",
@@ -93,8 +94,9 @@ namespace AspNet.Security.OAuth.Weixin
                 return OAuthTokenResponse.Failed(new Exception("An error occurred while retrieving an access token."));
             }
 
-            var payload = JObject.Parse(await response.Content.ReadAsStringAsync());
-            if (!string.IsNullOrEmpty(payload.Value<string>("errcode")))
+            var payloadDoc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var payload = payloadDoc.RootElement;
+            if (!string.IsNullOrEmpty(payload.GetString("errcode")))
             {
                 Logger.LogError("An error occurred while retrieving an access token: the remote server " +
                                 "returned a {Status} response with the following payload: {Headers} {Body}.",
@@ -104,7 +106,7 @@ namespace AspNet.Security.OAuth.Weixin
 
                 return OAuthTokenResponse.Failed(new Exception("An error occurred while retrieving an access token."));
             }
-            return OAuthTokenResponse.Success(payload);
+            return OAuthTokenResponse.Success(payloadDoc);
         }
 
         protected override string BuildChallengeUrl(AuthenticationProperties properties, string redirectUri)

@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace AspNet.Security.OAuth.ArcGIS
 {
@@ -47,17 +47,18 @@ namespace AspNet.Security.OAuth.ArcGIS
 
             // Request the token
             var response = await Backchannel.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, Context.RequestAborted);
-            var payload = JObject.Parse(await response.Content.ReadAsStringAsync());
+            var payloadDoc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var payload = payloadDoc.RootElement;
 
-            // Note: error responses always return 200 status codes.
-            var error = payload.Value<JObject>("error");
-            if (error != null)
+			// Note: error responses always return 200 status codes.
+			var errorExists = payload.TryGetProperty("error", out var error);
+            if (errorExists)
             {
-                // See https://developers.arcgis.com/authentication/server-based-user-logins/ for more information
-                Logger.LogError("An error occurred while retrieving the user profile: the remote server " +
+				// See https://developers.arcgis.com/authentication/server-based-user-logins/ for more information
+				Logger.LogError("An error occurred while retrieving the user profile: the remote server " +
                                 "returned a response with the following error code: {Code} {Message}.",
-                                /* Code: */ error.Value<string>("code"),
-                                /* Message: */ error.Value<string>("message"));
+                                /* Code: */ error.GetString("code"),
+                                /* Message: */ error.GetString("message"));
 
                 throw new InvalidOperationException("An error occurred while retrieving the user profile.");
             }

@@ -8,7 +8,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Linq;
 using static AspNet.Security.OAuth.Spotify.SpotifyAuthenticationConstants;
 
 namespace AspNet.Security.OAuth.Spotify
@@ -36,7 +37,7 @@ namespace AspNet.Security.OAuth.Spotify
             ClaimActions.MapJsonKey(ClaimTypes.Uri, "uri");
             ClaimActions.MapJsonKey(Claims.Product, "product");
             ClaimActions.MapJsonSubKey(Claims.Url, "external_urls", "spotify");
-            ClaimActions.MapCustomJson(Claims.ProfilePicture, user => user.Value<JArray>("images")?.First?.Value<string>("url"));
+            ClaimActions.MapCustomJson(Claims.ProfilePicture, user => user.GetProperty("images").EnumerateArray().First().GetString("url"));
         }
     }
 }

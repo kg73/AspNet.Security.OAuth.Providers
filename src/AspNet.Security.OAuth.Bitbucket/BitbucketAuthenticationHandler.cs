@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace AspNet.Security.OAuth.Bitbucket
 {
@@ -49,7 +49,8 @@ namespace AspNet.Security.OAuth.Bitbucket
                 throw new HttpRequestException("An error occurred while retrieving the user profile.");
             }
 
-            var payload = JObject.Parse(await response.Content.ReadAsStringAsync());
+            var payloadDoc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var payload = payloadDoc.RootElement;
 
             var principal = new ClaimsPrincipal(identity);
             var context = new OAuthCreatingTicketContext(principal, properties, Context, Scheme, Options, Backchannel, tokens, payload);
@@ -90,11 +91,12 @@ namespace AspNet.Security.OAuth.Bitbucket
                 return null;
             }
 
-            var payload = JObject.Parse(await response.Content.ReadAsStringAsync());
+            var payloadDoc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var payload = payloadDoc.RootElement;
 
-            return (from address in payload.Value<JArray>("values")
-                    where address.Value<bool>("is_primary")
-                    select address.Value<string>("email")).FirstOrDefault();
+            return (from address in payload.GetProperty("values").EnumerateArray()
+                    where address.TryGetProperty("is_primary", out var e) && e.GetBoolean()
+                    select address.GetString("email")).FirstOrDefault();
         }
     }
 }

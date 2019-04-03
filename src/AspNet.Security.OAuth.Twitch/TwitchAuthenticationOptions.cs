@@ -4,6 +4,7 @@
  * for more information concerning the license and the contributors participating to this project.
  */
 
+using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
@@ -30,47 +31,47 @@ namespace AspNet.Security.OAuth.Twitch
 
             ClaimActions.MapCustomJson(ClaimTypes.NameIdentifier, user =>
             {
-                return user["data"]?[0]?.Value<string>("id");
+                return user.GetProperty("data").EnumerateArray().First().GetString("id");
             });
 
             ClaimActions.MapCustomJson(ClaimTypes.Name, user =>
             {
-                return user["data"]?[0]?.Value<string>("login");
+                return user.GetProperty("data").EnumerateArray().First().GetString("login");
             });
 
             ClaimActions.MapCustomJson(Claims.DisplayName, user =>
             {
-                return user["data"]?[0]?.Value<string>("display_name");
+                return user.GetProperty("data").EnumerateArray().First().GetString("display_name");
             });
 
             ClaimActions.MapCustomJson(ClaimTypes.Email, user =>
             {
-                return user["data"]?[0]?.Value<string>("email");
+                return user.GetProperty("data").EnumerateArray().First().GetString("email");
             });
 
             ClaimActions.MapCustomJson(Claims.Type, user =>
             {
-                return user["data"]?[0]?.Value<string>("type");
+                return user.GetProperty("data").EnumerateArray().First().GetString("type");
             });
 
             ClaimActions.MapCustomJson(Claims.BroadcasterType, user =>
             {
-                return user["data"]?[0]?.Value<string>("broadcaster_type");
+                return user.GetProperty("data").EnumerateArray().First().GetString("broadcaster_type");
             });
 
             ClaimActions.MapCustomJson(Claims.Description, user =>
             {
-                return user["data"]?[0]?.Value<string>("description");
+                return user.GetProperty("data").EnumerateArray().First().GetString("description");
             });
 
             ClaimActions.MapCustomJson(Claims.ProfileImageUrl, user =>
             {
-                return user["data"]?[0]?.Value<string>("profile_image_url");
+                return user.GetProperty("data").EnumerateArray().First().GetString("profile_image_url");
             });
 
             ClaimActions.MapCustomJson(Claims.OfflineImageUrl, user =>
             {
-                return user["data"]?[0]?.Value<string>("offline_image_url");
+                return user.GetProperty("data").EnumerateArray().First().GetString("offline_image_url");
             });
         }
 

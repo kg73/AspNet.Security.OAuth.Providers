@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace AspNet.Security.OAuth.Myob
 {
@@ -32,7 +32,7 @@ namespace AspNet.Security.OAuth.Myob
         {
             // Note: MYOB doesn't provide a user information endpoint,
             // so we rely on the details sent back in the token request.
-            var user = (JObject) tokens.Response.SelectToken("user");
+            var user = tokens.Response.RootElement.GetProperty("user");
 
             var principal = new ClaimsPrincipal(identity);
             var context = new OAuthCreatingTicketContext(principal, properties, Context, Scheme, Options, Backchannel, tokens, user);

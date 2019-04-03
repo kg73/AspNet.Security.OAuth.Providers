@@ -4,6 +4,7 @@
  * for more information concerning the license and the contributors participating to this project.
  */
 
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
@@ -30,10 +31,10 @@ namespace AspNet.Security.OAuth.StackExchange
             UserInformationEndpoint = StackExchangeAuthenticationDefaults.UserInformationEndpoint;
             BackchannelHttpHandler = new HttpClientHandler { AutomaticDecompression = DecompressionMethods.GZip };
 
-            ClaimActions.MapCustomJson(ClaimTypes.NameIdentifier, user => user["items"]?[0]?.Value<string>("account_id"));
-            ClaimActions.MapCustomJson(ClaimTypes.Name, user => user["items"]?[0]?.Value<string>("display_name"));
-            ClaimActions.MapCustomJson(ClaimTypes.Webpage, user => user["items"]?[0]?.Value<string>("website_url"));
-            ClaimActions.MapCustomJson(Claims.Link, user => user["items"]?[0]?.Value<string>("link"));
+            ClaimActions.MapCustomJson(ClaimTypes.NameIdentifier, user => user.GetProperty("items").EnumerateArray().First().GetString("account_id"));
+            ClaimActions.MapCustomJson(ClaimTypes.Name, user => user.GetProperty("items").EnumerateArray().First().GetString("display_name"));
+            ClaimActions.MapCustomJson(ClaimTypes.Webpage, user => user.GetProperty("items").EnumerateArray().First().GetString("website_url"));
+            ClaimActions.MapCustomJson(Claims.Link, user => user.GetProperty("items").EnumerateArray().First().GetString("link"));
         }
 
         /// <summary>

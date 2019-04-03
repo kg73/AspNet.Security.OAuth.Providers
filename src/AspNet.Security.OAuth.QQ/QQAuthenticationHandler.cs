@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace AspNet.Security.OAuth.QQ
 {
@@ -64,15 +64,16 @@ namespace AspNet.Security.OAuth.QQ
                 throw new HttpRequestException("An error occurred while retrieving user information.");
             }
 
-            var payload = JObject.Parse(await response.Content.ReadAsStringAsync());
+            var payloadDoc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var payload = payloadDoc.RootElement;
 
-            var status = payload.Value<int>("ret");
+            var status = payload.GetProperty("ret").GetInt32();
             if (status != 0)
             {
                 Logger.LogError("An error occurred while retrieving the user profile: the remote server " +
                                 "returned a {Status} response with the following message: {Message}.",
                                 /* Status: */ status,
-                                /* Message: */ payload.Value<string>("msg"));
+                                /* Message: */ payload.GetString("msg"));
 
                 throw new HttpRequestException("An error occurred while retrieving user information.");
             }
@@ -110,10 +111,9 @@ namespace AspNet.Security.OAuth.QQ
                 return OAuthTokenResponse.Failed(new Exception("An error occurred while retrieving an access token."));
             }
 
-            var payload = JObject.FromObject(QueryHelpers.ParseQuery(await response.Content.ReadAsStringAsync())
-                .ToDictionary(pair => pair.Key, k => k.Value.ToString()));
+			var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
 
-            return OAuthTokenResponse.Success(payload);
+			return OAuthTokenResponse.Success(payload);
         }
 
         private async Task<string> GetUserIdentifierAsync(OAuthTokenResponse tokens)
@@ -141,9 +141,9 @@ namespace AspNet.Security.OAuth.QQ
                 body = body.Substring(index, body.LastIndexOf("}") - index + 1);
             }
 
-            var payload = JObject.Parse(body);
+            var payload = JsonDocument.Parse(body);
 
-            return payload.Value<string>("openid");
+            return payload.RootElement.GetString("openid");
         }
 
         protected override string FormatScope() => string.Join(",", Options.Scope);

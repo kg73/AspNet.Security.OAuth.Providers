@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace AspNet.Security.OAuth.Salesforce
 {
@@ -34,7 +34,7 @@ namespace AspNet.Security.OAuth.Salesforce
         {
             // Note: unlike the other social providers, the userinfo endpoint is user-specific and can't be set globally.
             // For more information, see https://developer.salesforce.com/page/Digging_Deeper_into_OAuth_2.0_on_Force.com
-            var request = new HttpRequestMessage(HttpMethod.Get, tokens.Response.Value<string>("id"));
+            var request = new HttpRequestMessage(HttpMethod.Get, tokens.Response.RootElement.GetString("id"));
 
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokens.AccessToken);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -51,7 +51,8 @@ namespace AspNet.Security.OAuth.Salesforce
                 throw new HttpRequestException("An error occurred while retrieving the user from the Salesforce identity service.");
             }
 
-            var payload = JObject.Parse(await response.Content.ReadAsStringAsync());
+            var payloadDoc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var payload = payloadDoc.RootElement;
 
             var principal = new ClaimsPrincipal(identity);
             var context = new OAuthCreatingTicketContext(principal, properties, Context, Scheme, Options, Backchannel, tokens, payload);

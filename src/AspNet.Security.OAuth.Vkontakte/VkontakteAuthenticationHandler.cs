@@ -15,7 +15,8 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Linq;
 
 namespace AspNet.Security.OAuth.Vkontakte
 {
@@ -56,12 +57,12 @@ namespace AspNet.Security.OAuth.Vkontakte
                 throw new HttpRequestException("An error occurred while retrieving the user profile.");
             }
 
-            var container = JObject.Parse(await response.Content.ReadAsStringAsync());
-            var payload = container["response"].First as JObject;
+            var container = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var payload = container.RootElement.GetProperty("response").EnumerateArray().First();
 
-            if (tokens.Response["email"] != null)
+            if (tokens.Response.RootElement.GetString("email") != null)
             {
-                payload.Add("email", tokens.Response["email"]);
+                payload.Add("email", tokens.Response.RootElement.GetString("email"));
             }
 
             var principal = new ClaimsPrincipal(identity);

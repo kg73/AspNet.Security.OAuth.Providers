@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace AspNet.Security.OAuth.Yammer
 {
@@ -49,7 +49,8 @@ namespace AspNet.Security.OAuth.Yammer
                 throw new HttpRequestException("An error occurred while retrieving the user profile.");
             }
 
-            var payload = JObject.Parse(await response.Content.ReadAsStringAsync());
+            var payloadDoc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var payload = payloadDoc.RootElement;
 
             var principal = new ClaimsPrincipal(identity);
             var context = new OAuthCreatingTicketContext(principal, properties, Context, Scheme, Options, Backchannel, tokens, payload);
@@ -86,16 +87,18 @@ namespace AspNet.Security.OAuth.Yammer
                 return OAuthTokenResponse.Failed(new Exception("An error occurred while retrieving an access token."));
             }
 
-            // Note: Yammer doesn't return a standard OAuth2 response. To make this middleware compatible
-            // with the OAuth2 generic middleware, a compliant JSON payload is generated manually.
-            // See https://developer.yammer.com/docs/oauth-2 for more information about this process.
-            var payload = JObject.Parse(await response.Content.ReadAsStringAsync())["access_token"].Value<JObject>();
-            payload["access_token"] = payload["token"];
-            payload["token_type"] = string.Empty;
-            payload["refresh_token"] = string.Empty;
-            payload["expires_in"] = string.Empty;
 
-            return OAuthTokenResponse.Success(payload);
+
+			// Note: Yammer doesn't return a standard OAuth2 response. To make this middleware compatible
+			// with the OAuth2 generic middleware, a compliant JSON payload is generated manually.
+			// See https://developer.yammer.com/docs/oauth-2 for more information about this process.
+			var payload = JObject.Parse(await response.Content.ReadAsStringAsync())["access_token"].Value<JObject>();
+			payload["access_token"] = payload["token"];
+			payload["token_type"] = string.Empty;
+			payload["refresh_token"] = string.Empty;
+			payload["expires_in"] = string.Empty;
+
+			return OAuthTokenResponse.Success(payload);
         }
     }
 }

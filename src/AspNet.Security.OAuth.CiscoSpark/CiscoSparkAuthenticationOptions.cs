@@ -8,7 +8,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Linq;
 
 namespace AspNet.Security.OAuth.CiscoSpark
 {
@@ -28,7 +29,7 @@ namespace AspNet.Security.OAuth.CiscoSpark
 
             ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
             ClaimActions.MapJsonKey(ClaimTypes.Name, "displayName");
-            ClaimActions.MapCustomJson(ClaimTypes.Email, user => user.Value<JArray>("emails")?.First?.Value<string>());
+            ClaimActions.MapCustomJson(ClaimTypes.Email, user => user.GetProperty("emails").EnumerateArray().First().GetString());
         }
     }
 }

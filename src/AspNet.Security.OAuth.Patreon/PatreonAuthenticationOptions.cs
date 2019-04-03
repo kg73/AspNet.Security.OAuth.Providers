@@ -32,9 +32,9 @@ namespace AspNet.Security.OAuth.Patreon
             Scope.Add("my-campaign");
 
             ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
-            ClaimActions.MapCustomJson(ClaimTypes.Name, user => user["attributes"]?.Value<string>("full_name"));
-            ClaimActions.MapCustomJson(ClaimTypes.Webpage, user => user["attributes"]?.Value<string>("url"));
-            ClaimActions.MapCustomJson(Claims.Avatar, user => user["attributes"]?.Value<string>("thumb_url"));
+            ClaimActions.MapCustomJson(ClaimTypes.Name, user => user.GetProperty("attributes").GetString("full_name"));
+            ClaimActions.MapCustomJson(ClaimTypes.Webpage, user => user.GetProperty("attributes").GetString("url"));
+            ClaimActions.MapCustomJson(Claims.Avatar, user => user.GetProperty("attributes").GetString("thumb_url"));
         }
     }
 }

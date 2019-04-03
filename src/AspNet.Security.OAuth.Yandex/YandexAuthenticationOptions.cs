@@ -8,7 +8,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Linq;
 
 namespace AspNet.Security.OAuth.Yandex
 {
@@ -30,7 +31,7 @@ namespace AspNet.Security.OAuth.Yandex
             ClaimActions.MapJsonKey(ClaimTypes.Name, "login");
             ClaimActions.MapJsonKey(ClaimTypes.Surname, "last_name");
             ClaimActions.MapJsonKey(ClaimTypes.GivenName, "first_name");
-            ClaimActions.MapCustomJson(ClaimTypes.Email, user => user.Value<JArray>("emails")?.First?.Value<string>());
+            ClaimActions.MapCustomJson(ClaimTypes.Email, user => user.GetProperty("emails").EnumerateArray().First().GetString());
         }
     }
 }
