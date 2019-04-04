@@ -10,8 +10,9 @@ jobs:
     projectPath: 'src/${{ parameters.projectName }}/${{ parameters.projectName }}.csproj'
   steps:
   - task: DotNetCoreInstaller@0
-      inputs:
-        version: 3.0.100-preview3
+    inputs:
+    packageType: 'sdk'
+      version: '3.0.100-preview3-010431'
   - script: |
       set -e
       set -x
