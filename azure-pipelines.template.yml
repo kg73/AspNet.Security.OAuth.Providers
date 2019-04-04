@@ -17,7 +17,7 @@ jobs:
       set -e
       set -x
       dotnet restore $(projectPath)
-      dotnet build $(projectPath) --configuration $(BuildConfiguration)
+      dotnet build $(projectPath) --configuration $(BuildConfiguration) -p:BuildNumber=$(Build.BuildNumber)
       dotnet pack $(projectPath) --configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)
   - task: PublishBuildArtifacts@1
     inputs:

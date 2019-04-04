@@ -1,4 +1,4 @@
-name: $(majorVersion).$(minorVersion)$(Rev:.r)
+name: $(Rev:rrr)
 
 # define two variables 'dockerId' and 'dockerPassword' in the build pipeline in UI for your ACR credentials
 trigger:
@@ -7,10 +7,6 @@ trigger:
     - dev
 
 variables:
-- name: majorVersion
-  value: 0
-- name: minorVersion
-  value: 0
 - name: BuildConfiguration
   value: Release
 
