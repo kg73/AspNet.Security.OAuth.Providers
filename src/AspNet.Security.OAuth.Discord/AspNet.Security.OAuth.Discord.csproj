@@ -10,7 +10,6 @@
     <Description>ASP.NET Core security middleware enabling Discord authentication.</Description>
     <Authors>Anders Blankholm;Chino Chang</Authors>
     <PackageTags>aspnetcore;authentication;discord;oauth;security</PackageTags>
-		<PackageId>kg73.AspNet.Security.OAuth.Discord</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
