@@ -9,6 +9,10 @@ jobs:
   variables:
     projectPath: 'src/${{ parameters.projectName }}/${{ parameters.projectName }}.csproj'
   steps:
+  - task: DotNetCoreInstaller@0
+    displayName: 'Use .NET Core sdk 3.0.100-preview3'
+    inputs:
+    version: 3.0.100-preview3
   - script: |
       set -e
       set -x
@@ -19,3 +23,4 @@ jobs:
     inputs:
       artifactName: ${{ parameters.projectName }}
       pathtoPublish: $(Build.ArtifactStagingDirectory)
+
