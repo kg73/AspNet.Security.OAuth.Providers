@@ -1,8 +1,9 @@
 parameters:
+  buildName: '' # Overridden in each pipeline file
   projectName: '' # Overridden in each pipeline file
 
 jobs:
-- job: Build_${{ parameters.projectName }}
+- job: Build_${{ parameters.buildName }}
   pool:
     vmImage: 'Ubuntu 16.04'
   variables:

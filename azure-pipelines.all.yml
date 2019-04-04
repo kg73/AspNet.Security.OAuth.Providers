@@ -18,9 +18,12 @@ jobs:
 - template: azure-pipelines.template.yml
   parameters:
     projectName: 'AspNet.Security.OAuth.Discord'
+    buildName: 'AspNetSecurityOAuthDiscord'
 - template: azure-pipelines.template.yml
   parameters:
     projectName: 'AspNet.Security.OAuth.Spotify'
+    buildName: 'AspNetSecurityOAuthSpotify'
 - template: azure-pipelines.template.yml
   parameters:
     projectName: 'AspNet.Security.OAuth.Twitch'
+    buildName: 'AspNetSecurityOAuthTwitch'
