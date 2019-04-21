@@ -37,7 +37,17 @@ namespace AspNet.Security.OAuth.Spotify
             ClaimActions.MapJsonKey(ClaimTypes.Uri, "uri");
             ClaimActions.MapJsonKey(Claims.Product, "product");
             ClaimActions.MapJsonSubKey(Claims.Url, "external_urls", "spotify");
-            //ClaimActions.MapCustomJson(Claims.ProfilePicture, user => user.GetProperty("images").EnumerateArray().FirstOrDefault().GetString("url"));
-        }
+			ClaimActions.MapCustomJson(
+				Claims.ProfilePicture,
+				user =>
+				{
+					if (user.TryGetProperty("images", out var images))
+					{
+						return images.EnumerateArray().Select((p) => p.GetString("url")).FirstOrDefault();
+					}
+
+					return null;
+				});
+		}
     }
 }
